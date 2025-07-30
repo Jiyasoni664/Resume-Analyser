@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resume Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="navbar">
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Feedback</a></li>
+      <li><a href="#">Contact Us</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h2>Resume Analyzer</h2>
+    
+    <form action="/" method="POST" enctype="multipart/form-data">
+      <div class="job-description">
+        <label for="job-description">Job Description:</label>
+        <textarea name="job_description" id="job-description" placeholder="Paste the job description here..."></textarea>
+      </div>
+
+      <div class="file-upload">
+        <label for="resume-file">Upload Resume (Text/PDF):</label>
+        <input type="file" name="resume" id="resume-file" accept=".txt, .pdf" required />
+      </div>
+
+      <button type="submit" id="submit-btn">Analyze Resume</button>
+    </form>
+
+    {% if results %}
+    <div class="output">
+      <h3>Analysis Output:</h3>
+      <p><strong>Name:</strong> {{ results.name }}</p>
+      <p><strong>Qualifications:</strong> {{ results.qualifications }}</p>
+      <p><strong>Experience:</strong> {{ results.experience }}</p>
+      <p><strong>Age:</strong> {{ results.age }}</p>
+      <p><strong>Skills Found:</strong> {{ results.skills }}</p>
+      <p><strong>Matched Skills:</strong> {{ results.matched_skills }}</p>
+      <p><strong>Hobbies:</strong> {{ results.hobbies }}</p>
+      <p><strong>Projects:</strong> {{ results.projects }}</p>
+      <p><strong>Suggested Role:</strong> {{ results.matched_role }}</p>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
