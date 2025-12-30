@@ -1,54 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Resume Analyzer</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>Resume Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+        .container { max-width:600px; margin:50px auto; background:white; padding:30px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align:center; margin-bottom:25px; color:#333; }
+        label { font-weight:bold; display:block; margin-bottom:5px; }
+        input[type="file"], input[type="text"], button, textarea { width:100%; padding:10px; margin-bottom:20px; border-radius:5px; border:1px solid #ccc; font-size:14px; }
+        button { background:#333; color:white; border:none; cursor:pointer; }
+        button:hover { background:#555; }
+        .result { background:#f1f1f1; padding:15px; border-radius:5px; margin-top:20px; }
+        .skills span { display:inline-block; background:#ddd; padding:5px 10px; margin:5px 5px 0 0; border-radius:3px; font-size:13px; }
+        .rag-answer { background:white; border:1px solid #ccc; padding:10px; margin-top:10px; white-space: pre-wrap; border-radius:4px; }
+        footer { text-align:center; font-size:12px; color:#777; margin-top:40px; padding-bottom:20px; }
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <ul>
-      <li><a href="#">Home</a></li>
-      <li><a href="#">About</a></li>
-      <li><a href="#">Feedback</a></li>
-      <li><a href="#">Contact Us</a></li>
-    </ul>
-  </nav>
+    <div class="container">
+        <h1>Resume Analyzer (RAG)</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <label>Upload Resume (PDF / TXT)</label>
+            <input type="file" name="resume" required>
+            <button type="submit">Analyze Resume</button>
+        </form>
 
-  <div class="container">
-    <h2>Resume Analyzer</h2>
-    
-    <!-- Resume Upload Form -->
-    <form action="/" method="POST" enctype="multipart/form-data">
-      <div class="job-description">
-        <label for="job-description">Job Description:</label>
-        <textarea name="job_description" id="job-description" placeholder="Paste the job description here..."></textarea>
-      </div>
+        {% if result %}
+        <div class="result">
+            <p><strong>Recommended Role:</strong> {{ result.matched_role }}</p>
+            <div class="skills">
+                <strong>Matched Skills:</strong><br>
+                {% for skill in result.skills %}
+                    <span>{{ skill }}</span>
+                {% endfor %}
+            </div>
+        </div>
 
-      <div class="file-upload">
-        <label for="resume-file">Upload Resume (Text/PDF):</label>
-        <input type="file" name="resume" id="resume-file" accept=".txt, .pdf" required />
-      </div>
+        <div class="result">
+            <h3>Ask Questions About Resume</h3>
+            <form action="/ask" method="post">
+                <input type="text" name="question" placeholder="e.g. What are my strengths?" required>
+                <button type="submit">Ask</button>
+            </form>
 
-      <button type="submit" id="submit-btn">Analyze Resume</button>
-    </form>
-
-    <!-- Displaying the Analysis Results -->
-    {% if results %}
-    <div class="output">
-      <h3>Analysis Output:</h3>
-      <p><strong>Name:</strong> {{ results.name }}</p>
-      <p><strong>Qualifications:</strong> {{ results.qualifications }}</p>
-      <p><strong>Experience:</strong> {{ results.experience }}</p>
-      <p><strong>Age:</strong> {{ results.age }}</p>
-      <p><strong>Skills Found:</strong> {{ results.skills }}</p>
-      <p><strong>Matched Skills:</strong> {{ results.matched_skills }}</p>
-      <p><strong>Hobbies:</strong> {{ results.hobbies }}</p>
-      <p><strong>Projects:</strong> {{ results.projects }}</p>
-      <p><strong>Suggested Role:</strong> {{ results.matched_role }}</p>
+            {% if answer %}
+            <div class="rag-answer">
+                {{ answer }}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
-  </div>
+
+    <footer>© 2025 Resume Analyzer</footer>
 </body>
 </html>
