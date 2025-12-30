@@ -1,51 +1,58 @@
 import os
-import fitz  # PyMuPDF
+import fitz
 import spacy
+from sentence_transformers import SentenceTransformer
+import numpy as np
+import faiss
 
-# Load spaCy model
 nlp = spacy.load("en_core_web_sm")
 
-# Define known skills
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+
 skills_list = [
     "python", "data analysis", "machine learning", "flask", "django",
     "excel", "sql", "power bi", "pandas", "numpy"
 ]
 
-# Extract text from PDF
+
+resume_chunks = []
+chunk_embeddings = None
+index = None
+
 def get_text_from_pdf(file_path):
     doc = fitz.open(file_path)
     text = ""
     for page in doc:
-        text += page.get_text()
+        page_text = page.get_text()
+        page_text = page_text.replace("\n", " ").replace("-", " ").lower()
+        text += page_text + " "
     return text
 
-# Extract text from TXT
 def get_text_from_txt(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
-        return f.read()
+        return f.read().lower()
 
-# Find matching skills
 def find_skills(text):
     text = text.lower()
     skills_found = []
     for skill in skills_list:
-        if skill in text:
+        if skill.lower() in text:
             skills_found.append(skill)
     return skills_found
 
-# Extract qualifications, experience, and other details
 def extract_details(text):
-    # Placeholder logic for extracting details from the resume
-    qualifications = "Bachelor's in Computer Science"  # Extract from text
-    experience = "2 years as Data Analyst"  # Extract from text
-    age = "25"  # Extract from text (use date of birth, etc.)
-    hobbies = "Reading, Traveling"  # Extract from text
-    projects = "Data Visualization Project, Machine Learning Project"  # Extract from text
-
+    qualifications = "Bachelor's in Computer Science"
+    experience = "2 years as Data Analyst"
+    age = "25"
+    hobbies = "Reading, Traveling"
+    projects = "Data Visualization Project, Machine Learning Project"
     return qualifications, experience, age, hobbies, projects
 
-# Analyze the resume
 def analyze_resume(file_path):
+    global resume_chunks, chunk_embeddings, index
+
     ext = os.path.splitext(file_path)[1].lower()
 
     if ext == '.pdf':
@@ -58,17 +65,22 @@ def analyze_resume(file_path):
     if not text.strip():
         return {"error": "No text found in resume!"}
 
-    # Extract additional details
+  
     qualifications, experience, age, hobbies, projects = extract_details(text)
 
-    # Find skills
+    
     skills = find_skills(text)
     matched_skills = ', '.join(skills)
-    score = len(skills) * 10
 
-    # Return the complete analysis result
+    
+    resume_chunks = [text[i:i+500] for i in range(0, len(text), 500)]
+    chunk_embeddings = model.encode(resume_chunks)
+    dim = chunk_embeddings.shape[1]
+    index = faiss.IndexFlatL2(dim)
+    index.add(np.array(chunk_embeddings))
+
     return {
-        "name": "Candidate",  # This can be extracted from the resume text if available
+        "name": "Candidate",
         "qualifications": qualifications,
         "experience": experience,
         "age": age,
@@ -78,3 +90,14 @@ def analyze_resume(file_path):
         "projects": projects,
         "matched_role": "Data Analyst" if "data analysis" in skills else "Tech Role"
     }
+
+
+def rag_query(question):
+    global resume_chunks, chunk_embeddings, index
+    if index is None or len(resume_chunks) == 0:
+        return "Please upload a resume first."
+
+    q_emb = model.encode([question])
+    D, I = index.search(np.array(q_emb), k=2)
+    answer_chunks = [resume_chunks[i] for i in I[0]]
+    return " ".join(answer_chunks)
