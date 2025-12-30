@@ -1,2 +1,4 @@
 # Resume-Analyser
-A web-based Resume Analyzer using Python and Flask that extracts skills, experience, and other key details from PDF/TXT resumes.
+Built a Python-based RAG project to analyze resumes, extract insights, and provide AI-driven suggestions using PDF parsing and semantic search.
+
+Implemented LLM integration for interactive queries and feedback generation.
