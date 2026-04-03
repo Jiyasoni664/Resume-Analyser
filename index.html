@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Resume Analyzer</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+    .container { max-width:600px; margin:50px auto; background:white; padding:30px; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+    h1, h2 { text-align:center; color:#333; }
+    label { font-weight:bold; display:block; margin-bottom:5px; }
+    input, textarea, button { width:100%; padding:10px; margin-bottom:15px; border-radius:5px; border:1px solid #ccc; }
+    button { background:#333; color:white; border:none; cursor:pointer; }
+    button:hover { background:#555; }
+    .result { background:#f1f1f1; padding:15px; border-radius:5px; margin-top:20px; }
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Resume Analyzer</h1>
+
+  <form method="POST" enctype="multipart/form-data">
+    <label>Upload Resume (PDF / TXT)</label>
+    <input type="file" name="resume" required>
+
+```
+<label>Job Description</label>
+<textarea name="job_description" placeholder="Paste job description..."></textarea>
+
+<button type="submit">Analyze Resume</button>
+```
+
+  </form>
+
+{% if results %}
+
+  <div class="result">
+    <h3>Analysis Output</h3>
+    <p><strong>Name:</strong> {{ results.name }}</p>
+    <p><strong>Skills:</strong> {{ results.skills }}</p>
+    <p><strong>Matched Role:</strong> {{ results.matched_role }}</p>
+  </div>
+  {% endif %}
+
+</div>
+
+</body>
+</html>
